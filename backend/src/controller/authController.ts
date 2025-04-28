@@ -29,6 +29,7 @@ const setAuthCookie = (res: Response, token: string) => {
       isProduction ? "Secure;" : ""
     } SameSite=None; Path=/; Max-Age=${7 * 24 * 60 * 60}`
   );
+  return;
 };
 
 export const signup: RequestHandler = async (req, res) => {
@@ -42,6 +43,7 @@ export const signup: RequestHandler = async (req, res) => {
 
     if (existingUser) {
       res.status(400).json({ error: "Email already registered" });
+      return;
     }
 
     // Hash password
@@ -86,6 +88,7 @@ export const signup: RequestHandler = async (req, res) => {
         role: result.role,
       },
     });
+    return;
   } catch (error) {
     if (error instanceof z.ZodError) {
       res.status(400).json({ error: error.errors });
@@ -121,6 +124,7 @@ export const login: RequestHandler = async (req: Request, res: Response) => {
     );
     if (!validPassword) {
       res.status(401).json({ error: "Invalid password" });
+      return;
     }
 
     // Update last login
@@ -152,12 +156,14 @@ export const login: RequestHandler = async (req: Request, res: Response) => {
         lastLogin: userData.lastLogin,
       },
     });
+    return;
   } catch (error) {
     if (error instanceof z.ZodError) {
       res.status(400).json({ error: error.errors });
     }
     console.error("Login error:", error);
     res.status(500).json({ error: "Login failed" });
+    return;
   }
 };
 
@@ -175,6 +181,7 @@ export const logout = async (req: Request, res: Response) => {
   console.log("Clearing auth-token cookie");
 
   res.json({ message: "Logged out successfully" });
+  return;
 };
 
 export const getCurrentUser: RequestHandler = async (
@@ -200,8 +207,10 @@ export const getCurrentUser: RequestHandler = async (
     // Return user without sensitive data
     const { password, ...userWithoutPassword } = user;
     res.json(userWithoutPassword);
+    return;
   } catch (error) {
     console.error("Get current user error:", error);
     res.status(500).json({ error: "Failed to get user data" });
+    return;
   }
 };

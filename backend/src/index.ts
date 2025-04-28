@@ -26,7 +26,18 @@ app.use(limiter);
 // Basic middleware
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: (origin, callback) => {
+      console.log("Incoming request from:", origin);
+      const allowedOrigins = [
+        "http://localhost:5173",
+        process.env.CLIENT_URL,
+      ];
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
