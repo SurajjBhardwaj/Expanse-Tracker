@@ -1,5 +1,5 @@
 import { api } from "../axios";
-import { setToken } from "../token";
+import { removeToken, setToken } from "../token";
 import Cookies from "js-cookie";
 
 interface LoginResponse {
@@ -14,10 +14,9 @@ interface LoginResponse {
 export const authApi = {
   login: async (data: { email: string; password: string }) => {
     const response = await api.post<LoginResponse>("/auth/login", data);
-    console.log("Login response:", response);
+    // console.log("Login response:", response);
     if (response.token) {
       setToken(response.token);
-      localStorage.setItem("token", response.token);
       Cookies.set("token", response.token, { expires: 7 }); // Token expires in 7 days
     }
     return response;
@@ -30,6 +29,10 @@ export const authApi = {
 
   logout: async () => {
     const response = await api.post("/auth/logout");
+    // Clear token from local storage and cookies
+    localStorage.removeItem("lia-token");
+    Cookies.remove("token");
+    localStorage.removeItem("user");
     return response;
   },
 

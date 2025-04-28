@@ -17,16 +17,16 @@ export default function PublicRoute({ children }: PublicRouteProps) {
   const auth = useAuth();
   const location = useLocation();
 
-  console.log("Public Route - Auth State:", {
-    isLoading: auth.isLoading,
-    isAuthenticated: auth.isAuthenticated,
-    user: auth.user,
-    path: location.pathname,
-  });
+  // console.log("Public Route - Auth State:", {
+  //   isLoading: auth.isLoading,
+  //   isAuthenticated: auth.isAuthenticated,
+  //   user: auth.user,
+  //   path: location.pathname,
+  // });
 
   if (auth.isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-screen w-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );

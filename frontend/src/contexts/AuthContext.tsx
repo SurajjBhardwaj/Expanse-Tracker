@@ -21,6 +21,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  setUser: (user: User | null) => void;
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -30,6 +31,7 @@ interface AuthContextType {
 // Create the context with a default value
 export const AuthContext = createContext<AuthContextType>({
   user: null,
+  setUser: () => {},
   isAuthenticated: false,
   isLoading: true,
   login: async () => {},
@@ -52,7 +54,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
           setUser(JSON.parse(storedUser));
-          console.log("Loaded user from storage:", JSON.parse(storedUser));
+          //console.log("Loaded user from storage:", JSON.parse(storedUser));
         }
       } catch (err) {
         console.error("Error loading user from storage:", err);
@@ -72,7 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           // Save user to state and localStorage
           setUser(userData);
           localStorage.setItem("user", JSON.stringify(userData));
-          console.log("Authenticated user:", userData);
+          //console.log("Authenticated user:", userData);
         } catch (err) {
           console.error("Authentication error:", err);
           // Clear invalid tokens
@@ -99,7 +101,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Save user data to state
       setUser(response.user);
 
-      console.log("Login successful, user data:", response.user);
+      //console.log("Login successful, user data:", response.user);
       navigate("/dashboard");
     } catch (err: any) {
       setError(
@@ -116,13 +118,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setError(null);
     try {
       setIsLoading(true);
-      await authApi.register({ name, email, password });
+      const response = await authApi.register({ name, email, password });
+      if (response.status >= 200 && response.status < 300) {
+        // Save user data to state
+        navigate("/login");
+      } else {
+        setError(response.error);
+        return;
+      }
       // After successful signup, log the user in
-      await login(email, password);
     } catch (err: any) {
-      setError(
-        err.response?.data?.message || "Signup failed. Please try again."
-      );
+      setError(err.response?.data.errror || "Signup failed. Please try again.");
       console.error("Signup error:", err);
       setIsLoading(false);
     }
@@ -144,6 +150,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     user,
     isAuthenticated: !!user,
     isLoading,
+    setUser,
     login,
     signup,
     logout,
@@ -153,8 +160,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-
 // Export the hook
 export const useAuth = () => {
-  return useContext(AuthContext)
-}
+  return useContext(AuthContext);
+};

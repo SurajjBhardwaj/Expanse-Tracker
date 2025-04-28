@@ -17,7 +17,7 @@ function App() {
     <Router>
       <Suspense
         fallback={
-          <div className="flex h-screen items-center justify-center">
+          <div className="flex h-screen w-screen items-center justify-center">
             Loading...
           </div>
         }
