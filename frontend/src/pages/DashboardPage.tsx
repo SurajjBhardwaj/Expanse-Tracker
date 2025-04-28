@@ -2,12 +2,14 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import Header from "@/components/Header";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ExpensesTab from "@/components/dashboard/ExpensesTab";
 import AnalyticsTab from "@/components/dashboard/AnalyticsTab";
+import { useState } from "react";
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState("expenses");
 
   return (
     <div className="min-h-screen w-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
@@ -29,19 +31,37 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          <Tabs defaultValue="expenses" className="w-full">
+          <Tabs
+            defaultValue="expenses"
+            className="w-full"
+            value={activeTab}
+            onValueChange={setActiveTab}
+          >
             <TabsList className="grid w-full grid-cols-2 mb-8">
-              <TabsTrigger value="expenses">Expenses</TabsTrigger>
-              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              <TabsTrigger
+                value="expenses"
+                className={`px-4 py-2 rounded-md text-sm font-medium ${
+                  activeTab === "expenses"
+                    ? "bg-yellow-500 text-white"
+                    : "bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                Expenses
+              </TabsTrigger>
+              <TabsTrigger
+                value="analytics"
+                className={`px-4 py-2 rounded-md text-sm font-medium ${
+                  activeTab === "analytics"
+                    ? "bg-yellow-500 text-white"
+                    : "bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                Analytics
+              </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="expenses" className="mt-0">
-              <ExpensesTab />
-            </TabsContent>
-
-            <TabsContent value="analytics" className="mt-0">
-              <AnalyticsTab />
-            </TabsContent>
+            {activeTab === "expenses" && <ExpensesTab />}
+            {activeTab === "analytics" && <AnalyticsTab />}
           </Tabs>
         </div>
       </motion.main>

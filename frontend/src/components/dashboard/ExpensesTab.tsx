@@ -34,7 +34,7 @@ export default function ExpensesTab() {
 
   // State for pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(5);
 
   // State for modal
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -119,6 +119,20 @@ export default function ExpensesTab() {
     },
   });
 
+  // Add this after the deleteMutation declaration
+  const updateMutation = useMutation({
+    mutationFn: (expense: Expense) =>
+      expenseApi.updateExpense(expense.id, expense),
+    onError: (error) => {
+      console.error("Error updating expense:", error);
+      toast.error("Failed to update expense");
+    },
+    onSuccess: () => {
+      toast.success("Expense updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["expenses"] });
+    },
+  });
+
   // Handle expense deletion
   const handleDeleteExpense = (id: string) => {
     if (window.confirm("Are you sure you want to delete this expense?")) {
@@ -126,8 +140,9 @@ export default function ExpensesTab() {
     }
   };
 
-  // Handle expense editing
+  // Modify the handleEditExpense function to include better logging
   const handleEditExpense = (expense: Expense) => {
+    console.log("Editing expense:", expense);
     setEditingExpense(expense);
     setIsModalOpen(true);
   };
@@ -189,7 +204,7 @@ export default function ExpensesTab() {
           </div>
 
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[180px] ">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent className="z-100 bg-white dark:bg-gray-900">
