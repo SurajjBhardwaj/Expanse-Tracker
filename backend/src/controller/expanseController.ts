@@ -74,6 +74,8 @@ export const getExpanses: RequestHandler = async (req: any, res) => {
       endDate,
     } = req.query;
 
+    const userId = req.user.userId;
+
     // Validate and parse pagination parameters
     const pageNumber = parseInt(page, 10);
     const pageSize = parseInt(limit, 10);
@@ -92,8 +94,8 @@ export const getExpanses: RequestHandler = async (req: any, res) => {
       sortOrder === "asc" || sortOrder === "desc" ? sortOrder : "desc";
 
     // Build filter conditions
-    const filters: any = { userId: req.user.id };
-    if (category) filters.category = category;
+    const filters: any = { userId: req.user.userId };
+    if (category && category != "all") filters.category = category;
     if (minAmount)
       filters.amount = { ...filters.amount, gte: parseFloat(minAmount) };
     if (maxAmount)
@@ -106,6 +108,8 @@ export const getExpanses: RequestHandler = async (req: any, res) => {
         { description: { contains: search, mode: "insensitive" } },
       ];
     }
+
+    console.log("Filters:", filters);
 
     // Fetch expanses with pagination, sorting, and filtering
     const expanses = await prisma.expanse.findMany({
