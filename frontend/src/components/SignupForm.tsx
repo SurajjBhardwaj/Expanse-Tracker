@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import type React from "react";
 
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,6 @@ import {
   Info,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { authApi } from "@/lib/api/auth";
 
 export function SignupForm() {
   const [name, setName] = useState("");
@@ -32,39 +31,18 @@ export function SignupForm() {
   const [passwordError, setPasswordError] = useState("");
   const [formFocused, setFormFocused] = useState<string | null>(null);
   const [passwordStrength, setPasswordStrength] = useState(0);
-  const [Error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const auth = useAuth();
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      if (password !== confirmPassword) {
-        setPasswordError("Passwords do not match");
-        return;
-      }
-      setIsLoading(true);
-      setError("");
 
-      setPasswordError("");
-      const response = await authApi.register({ name, email, password });
-      if (response.status >= 200 && response.status < 300) {
-        // Save user data to state
-        navigate("/login");
-      } else {
-        setError(response.error);
-        return;
-      }
-    } catch (err) {
-      setError(
-        err.response?.data?.error ||
-          "Signup failed. Please check your credentials."
-      );
-      console.error("Signup error:", err);
-    } finally {
-      setIsLoading(false);
+    if (password !== confirmPassword) {
+      setPasswordError("Passwords do not match");
+      return;
     }
+
+    setPasswordError("");
+    await auth.signup(name, email, password);
   };
 
   const checkPasswordStrength = (password: string) => {
@@ -82,8 +60,8 @@ export function SignupForm() {
     checkPasswordStrength(newPassword);
   };
 
-  const isDisable = () => {
-    if (isLoading) return true;
+  const isDisabled = () => {
+    if (auth.isLoading) return true;
     if (!name || !email || !password || !confirmPassword) return true;
     if (password !== confirmPassword) return true;
     if (passwordStrength < 2) return true;
@@ -336,23 +314,23 @@ export function SignupForm() {
           )}
         </div>
 
-        {Error && (
+        {auth.error && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-2 p-3 text-sm rounded-md bg-red-50 text-red-600 border border-red-200"
           >
             <AlertCircle className="h-4 w-4 flex-shrink-0" />
-            <span>{Error}</span>
+            <span>{auth.error}</span>
           </motion.div>
         )}
 
         <Button
           type="submit"
           className="w-full py-6 h-auto text-base font-medium bg-violet-600 hover:bg-violet-700 transition-all"
-          disabled={isLoading || isDisable()}
+          disabled={isDisabled()}
         >
-          {isLoading ? (
+          {auth.isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating
               account...

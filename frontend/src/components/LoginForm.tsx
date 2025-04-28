@@ -10,42 +10,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Mail, Lock, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
-import { authApi } from "@/lib/api/auth";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [formFocused, setFormFocused] = useState<string | null>(null);
-  const [Errror, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const auth = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await login(email, password);
-  };
-
-  const login = async (email: string, password: string) => {
-    setError(null);
-    try {
-      setIsLoading(true);
-      const response = await authApi.login({ email, password });
-
-      // Save user data to state
-      auth.setUser(response.user);
-
-      navigate("/dashboard");
-    } catch (err: any) {
-      setError(
-        err.response?.data?.error ||
-          "Login failed. Please check your credentials."
-      );
-      console.error("Login error:", err);
-    } finally {
-      setIsLoading(false);
-    }
+    await auth.login(email, password);
   };
 
   return (
@@ -124,23 +100,23 @@ export default function LoginForm() {
           </div>
         </div>
 
-        {Errror && (
+        {auth.error && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-2 p-3 text-sm rounded-md bg-red-50 text-red-600 border border-red-200"
           >
             <AlertCircle className="h-4 w-4 flex-shrink-0" />
-            <span>{Errror}</span>
+            <span>{auth.error}</span>
           </motion.div>
         )}
 
         <Button
           type="submit"
           className="w-full py-6 h-auto text-base font-medium bg-violet-600 hover:bg-violet-700 transition-all"
-          disabled={isLoading}
+          disabled={auth.isLoading}
         >
-          {isLoading ? (
+          {auth.isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Signing in...
             </>

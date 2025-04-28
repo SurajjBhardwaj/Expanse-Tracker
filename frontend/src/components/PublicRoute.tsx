@@ -9,32 +9,24 @@ interface PublicRouteProps {
   children: ReactNode;
 }
 
-/**
- * PublicRoute component prevents authenticated users from accessing public pages
- * like login and signup. If they're already logged in, they get redirected to the dashboard.
- */
 export default function PublicRoute({ children }: PublicRouteProps) {
   const auth = useAuth();
   const location = useLocation();
 
-  // console.log("Public Route - Auth State:", {
-  //   isLoading: auth.isLoading,
-  //   isAuthenticated: auth.isAuthenticated,
-  //   user: auth.user,
-  //   path: location.pathname,
-  // });
+  // Get the intended destination if it exists
+  const from = location.state?.from || "/dashboard";
 
   if (auth.isLoading) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
       </div>
     );
   }
 
-  // If user is authenticated, redirect to dashboard
+  // If user is authenticated, redirect to dashboard or the intended destination
   if (auth.isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={from} replace />;
   }
 
   // Otherwise, render the public route content
