@@ -54,12 +54,80 @@ export const createExpanse: RequestHandler = async (req: any, res) => {
 
 export const getExpanses: RequestHandler = async (req: any, res) => {
   try {
+    // Ensure user is authenticated
+    if (!req.user || !req.user.userId) {
+      res.status(401).json({ error: "Unauthorized access" });
+      return;
+    }
+
+    // Extract query parameters
+    const {
+      page = 1,
+      limit = 10,
+      sortBy = "date",
+      sortOrder = "desc",
+      search = "",
+      category,
+      minAmount,
+      maxAmount,
+      startDate,
+      endDate,
+    } = req.query;
+
+    // Validate and parse pagination parameters
+    const pageNumber = parseInt(page, 10);
+    const pageSize = parseInt(limit, 10);
+    if (
+      isNaN(pageNumber) ||
+      pageNumber < 1 ||
+      isNaN(pageSize) ||
+      pageSize < 1
+    ) {
+      res.status(400).json({ error: "Invalid pagination parameters" });
+      return;
+    }
+
+    // Validate sort order
+    const validSortOrder =
+      sortOrder === "asc" || sortOrder === "desc" ? sortOrder : "desc";
+
+    // Build filter conditions
+    const filters: any = { userId: req.user.id };
+    if (category) filters.category = category;
+    if (minAmount)
+      filters.amount = { ...filters.amount, gte: parseFloat(minAmount) };
+    if (maxAmount)
+      filters.amount = { ...filters.amount, lte: parseFloat(maxAmount) };
+    if (startDate) filters.date = { ...filters.date, gte: new Date(startDate) };
+    if (endDate) filters.date = { ...filters.date, lte: new Date(endDate) };
+    if (search) {
+      filters.OR = [
+        { name: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+      ];
+    }
+
+    // Fetch expanses with pagination, sorting, and filtering
     const expanses = await prisma.expanse.findMany({
-      where: { userId: req.user.id }, // Assuming req.user contains the authenticated user's ID
-      orderBy: { date: "desc" },
+      where: filters,
+      orderBy: { [sortBy]: validSortOrder },
+      skip: (pageNumber - 1) * pageSize,
+      take: pageSize,
     });
 
-    res.status(200).json(expanses);
+    // Fetch total count for pagination metadata
+    const totalCount = await prisma.expanse.count({ where: filters });
+
+    // Respond with data and metadata
+    res.status(200).json({
+      data: expanses,
+      meta: {
+        totalItems: totalCount,
+        totalPages: Math.ceil(totalCount / pageSize),
+        currentPage: pageNumber,
+        pageSize,
+      },
+    });
   } catch (error) {
     console.error("Error fetching expanses:", error);
     res.status(500).json({ error: "Failed to fetch expanses" });

@@ -10,7 +10,6 @@ import { authMiddleware } from "../middleware/auth";
 
 const router = express.Router();
 
-
 router.get("/", authMiddleware, getExpanses);
 router.get("/:id", authMiddleware, getExpanseById);
 router.post("/", authMiddleware, createExpanse);

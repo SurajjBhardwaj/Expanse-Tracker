@@ -1,7 +1,7 @@
 import express, { Application, Request, Response, NextFunction } from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
-import AppRoute from "./route";
+import AppRoute from "./routes";
 import morgan from "morgan";
 import cors from "cors";
 import dotenv from "dotenv";
