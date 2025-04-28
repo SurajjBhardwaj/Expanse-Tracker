@@ -30,6 +30,7 @@ app.use(
       console.log("Incoming request from:", origin);
       const allowedOrigins = [
         "http://localhost:5173",
+        "https://expanse-tracker-wkxm.vercel.app/",
         process.env.CLIENT_URL,
       ];
       if (!origin || allowedOrigins.includes(origin)) {
