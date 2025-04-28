@@ -7,7 +7,7 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { authApi } from "@/lib/api/auth";
 
 interface User {
@@ -45,7 +45,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const location = useLocation();
 
   // Check if user is logged in on initial load
   useEffect(() => {
@@ -56,7 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (token && storedUser) {
         try {
           // Verify token is valid
-          const response = await authApi.getUserInfo();
+          await authApi.getUserInfo();
           setUser(JSON.parse(storedUser));
         } catch (err) {
           // If token is invalid, clear storage

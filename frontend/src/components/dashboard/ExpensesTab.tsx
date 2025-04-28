@@ -34,7 +34,7 @@ export default function ExpensesTab() {
 
   // State for pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize] = useState(5);
 
   // State for modal
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -102,7 +102,7 @@ export default function ExpensesTab() {
       // Return a context object with the snapshot
       return { previousExpenses };
     },
-    onError: (err, expenseId, context) => {
+    onError: (_, __, context) => {
       // If the mutation fails, use the context returned from onMutate to roll back
       queryClient.setQueryData(
         ["expenses", queryParams],
@@ -119,19 +119,19 @@ export default function ExpensesTab() {
     },
   });
 
-  // Add this after the deleteMutation declaration
-  const updateMutation = useMutation({
-    mutationFn: (expense: Expense) =>
-      expenseApi.updateExpense(expense.id, expense),
-    onError: (error) => {
-      console.error("Error updating expense:", error);
-      toast.error("Failed to update expense");
-    },
-    onSuccess: () => {
-      toast.success("Expense updated successfully");
-      queryClient.invalidateQueries({ queryKey: ["expenses"] });
-    },
-  });
+  // // Add this after the deleteMutation declaration
+  // const updateMutation = useMutation({
+  //   mutationFn: (expense: Expense) =>
+  //     expenseApi.updateExpense(expense.id, expense),
+  //   onError: (error) => {
+  //     console.error("Error updating expense:", error);
+  //     toast.error("Failed to update expense");
+  //   },
+  //   onSuccess: () => {
+  //     toast.success("Expense updated successfully");
+  //     queryClient.invalidateQueries({ queryKey: ["expenses"] });
+  //   },
+  // });
 
   // Handle expense deletion
   const handleDeleteExpense = (id: string) => {
@@ -256,7 +256,7 @@ export default function ExpensesTab() {
       )}
 
       {/* Expense list/card view */}
-      {!isLoading && !isError && expensesData?.data.length > 0 && (
+      {!isLoading && !isError && expensesData?.data && expensesData.data.length > 0 && (
         <>
           {viewType === "list" ? (
             <ExpenseListView
@@ -284,7 +284,7 @@ export default function ExpensesTab() {
       )}
 
       {/* Add/Edit Expense Modal */}
-      <ExpenseFormModal
+    <ExpenseFormModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         expense={editingExpense}

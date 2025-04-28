@@ -126,7 +126,7 @@ export default function ExpenseFormModal({
       // Return a context object with the snapshot
       return { previousExpenses };
     },
-    onError: (err, newExpense, context) => {
+    onError: (_, __, context) => {
       // If the mutation fails, use the context returned from onMutate to roll back
       queryClient.setQueryData(["expenses"], context?.previousExpenses);
       toast.error("Failed to create expense");
@@ -177,7 +177,7 @@ export default function ExpenseFormModal({
       // Return a context object with the snapshot
       return { previousExpenses };
     },
-    onError: (err, variables, context) => {
+    onError: (err, _, context) => {
       // If the mutation fails, use the context returned from onMutate to roll back
       queryClient.setQueryData(["expenses"], context?.previousExpenses);
       console.log("Error in update mutation:", err);
