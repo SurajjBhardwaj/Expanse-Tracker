@@ -2175,8 +2175,8 @@ export namespace Prisma {
     id: string
     name: string
     amount: number
-    description: string
-    category: string
+    description: string | null
+    category: string | null
     date: Date
     createdAt: Date
     updatedAt: Date
@@ -2243,8 +2243,8 @@ export namespace Prisma {
       id: string
       name: string
       amount: number
-      description: string
-      category: string
+      description: string | null
+      category: string | null
       date: Date
       createdAt: Date
       updatedAt: Date
@@ -3229,8 +3229,8 @@ export namespace Prisma {
     id?: StringFilter<"Expanse"> | string
     name?: StringFilter<"Expanse"> | string
     amount?: FloatFilter<"Expanse"> | number
-    description?: StringFilter<"Expanse"> | string
-    category?: StringFilter<"Expanse"> | string
+    description?: StringNullableFilter<"Expanse"> | string | null
+    category?: StringNullableFilter<"Expanse"> | string | null
     date?: DateTimeFilter<"Expanse"> | Date | string
     createdAt?: DateTimeFilter<"Expanse"> | Date | string
     updatedAt?: DateTimeFilter<"Expanse"> | Date | string
@@ -3258,8 +3258,8 @@ export namespace Prisma {
     NOT?: ExpanseWhereInput | ExpanseWhereInput[]
     name?: StringFilter<"Expanse"> | string
     amount?: FloatFilter<"Expanse"> | number
-    description?: StringFilter<"Expanse"> | string
-    category?: StringFilter<"Expanse"> | string
+    description?: StringNullableFilter<"Expanse"> | string | null
+    category?: StringNullableFilter<"Expanse"> | string | null
     date?: DateTimeFilter<"Expanse"> | Date | string
     createdAt?: DateTimeFilter<"Expanse"> | Date | string
     updatedAt?: DateTimeFilter<"Expanse"> | Date | string
@@ -3291,8 +3291,8 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Expanse"> | string
     name?: StringWithAggregatesFilter<"Expanse"> | string
     amount?: FloatWithAggregatesFilter<"Expanse"> | number
-    description?: StringWithAggregatesFilter<"Expanse"> | string
-    category?: StringWithAggregatesFilter<"Expanse"> | string
+    description?: StringNullableWithAggregatesFilter<"Expanse"> | string | null
+    category?: StringNullableWithAggregatesFilter<"Expanse"> | string | null
     date?: DateTimeWithAggregatesFilter<"Expanse"> | Date | string
     createdAt?: DateTimeWithAggregatesFilter<"Expanse"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Expanse"> | Date | string
@@ -3380,8 +3380,8 @@ export namespace Prisma {
     id?: string
     name: string
     amount: number
-    description: string
-    category: string
+    description?: string | null
+    category?: string | null
     date?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -3392,8 +3392,8 @@ export namespace Prisma {
     id?: string
     name: string
     amount: number
-    description: string
-    category: string
+    description?: string | null
+    category?: string | null
     date?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -3403,8 +3403,8 @@ export namespace Prisma {
   export type ExpanseUpdateInput = {
     name?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
-    description?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -3414,8 +3414,8 @@ export namespace Prisma {
   export type ExpanseUncheckedUpdateInput = {
     name?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
-    description?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -3426,8 +3426,8 @@ export namespace Prisma {
     id?: string
     name: string
     amount: number
-    description: string
-    category: string
+    description?: string | null
+    category?: string | null
     date?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -3437,8 +3437,8 @@ export namespace Prisma {
   export type ExpanseUpdateManyMutationInput = {
     name?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
-    description?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -3447,8 +3447,8 @@ export namespace Prisma {
   export type ExpanseUncheckedUpdateManyInput = {
     name?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
-    description?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -3946,8 +3946,8 @@ export namespace Prisma {
     id?: string
     name: string
     amount: number
-    description: string
-    category: string
+    description?: string | null
+    category?: string | null
     date?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -3957,8 +3957,8 @@ export namespace Prisma {
     id?: string
     name: string
     amount: number
-    description: string
-    category: string
+    description?: string | null
+    category?: string | null
     date?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -3996,8 +3996,8 @@ export namespace Prisma {
     id?: StringFilter<"Expanse"> | string
     name?: StringFilter<"Expanse"> | string
     amount?: FloatFilter<"Expanse"> | number
-    description?: StringFilter<"Expanse"> | string
-    category?: StringFilter<"Expanse"> | string
+    description?: StringNullableFilter<"Expanse"> | string | null
+    category?: StringNullableFilter<"Expanse"> | string | null
     date?: DateTimeFilter<"Expanse"> | Date | string
     createdAt?: DateTimeFilter<"Expanse"> | Date | string
     updatedAt?: DateTimeFilter<"Expanse"> | Date | string
@@ -4066,8 +4066,8 @@ export namespace Prisma {
     id?: string
     name: string
     amount: number
-    description: string
-    category: string
+    description?: string | null
+    category?: string | null
     date?: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -4076,8 +4076,8 @@ export namespace Prisma {
   export type ExpanseUpdateWithoutUserInput = {
     name?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
-    description?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -4086,8 +4086,8 @@ export namespace Prisma {
   export type ExpanseUncheckedUpdateWithoutUserInput = {
     name?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
-    description?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -4096,8 +4096,8 @@ export namespace Prisma {
   export type ExpanseUncheckedUpdateManyWithoutUserInput = {
     name?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
-    description?: StringFieldUpdateOperationsInput | string
-    category?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

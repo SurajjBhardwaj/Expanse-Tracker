@@ -26,16 +26,17 @@ model User {
   expanse   Expanse[]
 }
 
-model Expanse{
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  amount    Float
-  description String
-  category  String
-  date      DateTime  @default(now())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId    String   @db.ObjectId
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Expanse {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  amount      Float
+  description String?
+  category    String?
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String   @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId], name: "userId_index")
 }
