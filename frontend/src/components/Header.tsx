@@ -1,9 +1,9 @@
 "use client";
 
 import { Link } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { LogOut, User } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Header() {
   const { user, logout } = useAuth();

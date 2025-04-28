@@ -2,18 +2,22 @@
 
 import type { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { Loader2 } from "lucide-react";
 
-interface ProtectedRouteProps {
+interface PublicRouteProps {
   children: ReactNode;
 }
 
-export default function ProtectedRoute({ children }: ProtectedRouteProps) {
+/**
+ * PublicRoute component prevents authenticated users from accessing public pages
+ * like login and signup. If they're already logged in, they get redirected to the dashboard.
+ */
+export default function PublicRoute({ children }: PublicRouteProps) {
   const auth = useAuth();
   const location = useLocation();
 
-  console.log("Protected Route - Auth State:", {
+  console.log("Public Route - Auth State:", {
     isLoading: auth.isLoading,
     isAuthenticated: auth.isAuthenticated,
     user: auth.user,
@@ -28,10 +32,11 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  if (!auth.isAuthenticated) {
-    // Redirect to login but remember where the user was trying to go
-    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+  // If user is authenticated, redirect to dashboard
+  if (auth.isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
   }
 
+  // Otherwise, render the public route content
   return <>{children}</>;
 }

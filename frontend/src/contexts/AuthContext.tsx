@@ -5,6 +5,7 @@ import {
   useState,
   useEffect,
   type ReactNode,
+  useContext,
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { authApi } from "@/lib/api/auth";
@@ -151,3 +152,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+
+
+// Export the hook
+export const useAuth = () => {
+  return useContext(AuthContext)
+}

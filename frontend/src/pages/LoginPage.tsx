@@ -1,6 +1,6 @@
 import LoginForm from "@/components/LoginForm";
 import { useEffect } from "react";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
   const { user, isAuthenticated } = useAuth();
