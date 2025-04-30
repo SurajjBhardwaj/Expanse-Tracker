@@ -121,51 +121,7 @@ export default function ExpensesTab() {
     },
   });
 
-  // Update mutation
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) =>
-      expenseApi.updateExpense(id, data),
-    onMutate: async ({ id, data }) => {
-      // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ["expenses"] });
 
-      // Snapshot the previous value
-      const previousExpenses = queryClient.getQueryData([
-        "expenses",
-        queryParams,
-      ]);
-
-      // Optimistically update to the new value
-      queryClient.setQueryData(["expenses", queryParams], (old: any) => {
-        return {
-          ...old,
-          data: old.data.map((expense: Expense) =>
-            expense.id === id
-              ? { ...expense, ...data, updatedAt: new Date().toISOString() }
-              : expense
-          ),
-        };
-      });
-
-      // Return a context object with the snapshot
-      return { previousExpenses };
-    },
-    onError: (err, variables, context) => {
-      // If the mutation fails, use the context returned from onMutate to roll back
-      queryClient.setQueryData(
-        ["expenses", queryParams],
-        context?.previousExpenses
-      );
-      toast.error("Failed to update expense");
-    },
-    onSuccess: () => {
-      toast.success("Expense updated successfully");
-    },
-    onSettled: () => {
-      // Always refetch after error or success to make sure our local data is in sync with the server
-      queryClient.invalidateQueries({ queryKey: ["expenses"] });
-    },
-  });
 
   // Handle expense deletion
   const handleDeleteExpense = (id: string) => {
