@@ -1,4 +1,4 @@
-# LiaPlus Project
+# Project
 
 This project is a full-stack application for expense tracking, built with React, TypeScript, Vite, Express, and Prisma.
 
