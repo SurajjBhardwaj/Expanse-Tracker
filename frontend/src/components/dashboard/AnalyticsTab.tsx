@@ -158,7 +158,7 @@ export default function AnalyticsTab() {
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Select time range" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="z-100 bg-white dark:bg-gray-900">
             <SelectItem value="week">Last Week</SelectItem>
             <SelectItem value="month">Last Month</SelectItem>
             <SelectItem value="year">Last Year</SelectItem>

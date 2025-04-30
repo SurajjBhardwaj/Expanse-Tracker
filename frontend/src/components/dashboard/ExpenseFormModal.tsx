@@ -126,7 +126,7 @@ export default function ExpenseFormModal({
       // Return a context object with the snapshot
       return { previousExpenses };
     },
-    onError: (_, __, context) => {
+    onError: (err, newExpense, context) => {
       // If the mutation fails, use the context returned from onMutate to roll back
       queryClient.setQueryData(["expenses"], context?.previousExpenses);
       toast.error("Failed to create expense");
@@ -143,7 +143,7 @@ export default function ExpenseFormModal({
 
   // Update mutation
   const updateMutation = useMutation({
-    mutationFn: async ({
+    mutationFn: ({
       id,
       data,
     }: {
@@ -151,7 +151,7 @@ export default function ExpenseFormModal({
       data: ExpenseCreateUpdateData;
     }) => {
       console.log("Updating expense:", id, data);
-      return await expenseApi.updateExpense(id, data);
+      return expenseApi.updateExpense(id, data);
     },
     onMutate: async ({ id, data }) => {
       // Cancel any outgoing refetches
@@ -164,23 +164,20 @@ export default function ExpenseFormModal({
       queryClient.setQueryData(["expenses"], (old: any) => {
         return {
           ...old,
-          data: old?.data
-            ? old.data.map((expense: Expense) =>
-                expense.id === id
-                  ? { ...expense, ...data, updatedAt: new Date().toISOString() }
-                  : expense
-              )
-            : [],
+          data: old.data.map((expense: Expense) =>
+            expense.id === id
+              ? { ...expense, ...data, updatedAt: new Date().toISOString() }
+              : expense
+          ),
         };
       });
 
       // Return a context object with the snapshot
       return { previousExpenses };
     },
-    onError: (err, _, context) => {
+    onError: (err, variables, context) => {
       // If the mutation fails, use the context returned from onMutate to roll back
       queryClient.setQueryData(["expenses"], context?.previousExpenses);
-      console.log("Error in update mutation:", err);
       toast.error("Failed to update expense");
     },
     onSuccess: () => {
@@ -214,7 +211,7 @@ export default function ExpenseFormModal({
   };
 
   // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -238,7 +235,7 @@ export default function ExpenseFormModal({
           `Updating expense ${expense.id} with:`,
           formDataWithFullDate
         );
-        await updateMutation.mutate({
+        updateMutation.mutate({
           id: expense.id,
           data: {
             name: formDataWithFullDate.name,
@@ -278,7 +275,7 @@ export default function ExpenseFormModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[500px] bg-white dark:bg-gray-900">
+      <DialogContent className="sm:max-w-[500px] max-w-[calc(100vw-2rem)] bg-white dark:bg-gray-900">
         <DialogHeader>
           <DialogTitle>
             {expense ? "Edit Expense" : "Add New Expense"}
@@ -287,7 +284,7 @@ export default function ExpenseFormModal({
 
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-right">
+            <Label htmlFor="name" className="text-sm font-medium">
               Name <span className="text-red-500">*</span>
             </Label>
             <Input
@@ -305,7 +302,7 @@ export default function ExpenseFormModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="amount" className="text-right">
+            <Label htmlFor="amount" className="text-sm font-medium">
               Amount <span className="text-red-500">*</span>
             </Label>
             <Input
@@ -326,7 +323,7 @@ export default function ExpenseFormModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="category" className="text-right">
+            <Label htmlFor="category" className="text-sm font-medium">
               Category
             </Label>
             <Select
@@ -336,16 +333,10 @@ export default function ExpenseFormModal({
               }
               disabled={isSubmitting}
             >
-              <SelectTrigger
-                id="category"
-                className="text-foreground bg-white dark:bg-gray-900"
-              >
-                <SelectValue
-                  placeholder="Select a category"
-                  className="bg-white dark:bg-gray-900"
-                />
+              <SelectTrigger id="category" className="text-foreground">
+                <SelectValue placeholder="Select a category" />
               </SelectTrigger>
-              <SelectContent className="z-50 bg-background bg-white dark:bg-gray-900">
+              <SelectContent className="z-100 bg-white dark:bg-gray-900">
                 {EXPENSE_CATEGORIES.map((category) => (
                   <SelectItem key={category} value={category}>
                     {category}
@@ -356,7 +347,7 @@ export default function ExpenseFormModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="date" className="text-right">
+            <Label htmlFor="date" className="text-sm font-medium">
               Date <span className="text-red-500">*</span>
             </Label>
             <Input
@@ -374,7 +365,7 @@ export default function ExpenseFormModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-right">
+            <Label htmlFor="description" className="text-sm font-medium">
               Description
             </Label>
             <Textarea
@@ -388,16 +379,21 @@ export default function ExpenseFormModal({
             />
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0 pt-4">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
               disabled={isSubmitting}
+              className="w-full sm:w-auto"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full sm:w-auto"
+            >
               {isSubmitting && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}

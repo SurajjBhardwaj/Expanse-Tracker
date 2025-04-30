@@ -64,7 +64,9 @@ export default function ExpensesTab() {
     sortBy: "createdAt",
     sortOrder: "desc",
     search: debouncedSearchTerm,
-    ...(selectedCategory && { category: selectedCategory }),
+    ...(selectedCategory && selectedCategory !== "all"
+      ? { category: selectedCategory }
+      : {}),
   };
 
   // Fetch expenses
@@ -119,19 +121,51 @@ export default function ExpensesTab() {
     },
   });
 
-  // // Add this after the deleteMutation declaration
-  // const updateMutation = useMutation({
-  //   mutationFn: (expense: Expense) =>
-  //     expenseApi.updateExpense(expense.id, expense),
-  //   onError: (error) => {
-  //     console.error("Error updating expense:", error);
-  //     toast.error("Failed to update expense");
-  //   },
-  //   onSuccess: () => {
-  //     toast.success("Expense updated successfully");
-  //     queryClient.invalidateQueries({ queryKey: ["expenses"] });
-  //   },
-  // });
+  // Update mutation
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      expenseApi.updateExpense(id, data),
+    onMutate: async ({ id, data }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["expenses"] });
+
+      // Snapshot the previous value
+      const previousExpenses = queryClient.getQueryData([
+        "expenses",
+        queryParams,
+      ]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(["expenses", queryParams], (old: any) => {
+        return {
+          ...old,
+          data: old.data.map((expense: Expense) =>
+            expense.id === id
+              ? { ...expense, ...data, updatedAt: new Date().toISOString() }
+              : expense
+          ),
+        };
+      });
+
+      // Return a context object with the snapshot
+      return { previousExpenses };
+    },
+    onError: (err, variables, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      queryClient.setQueryData(
+        ["expenses", queryParams],
+        context?.previousExpenses
+      );
+      toast.error("Failed to update expense");
+    },
+    onSuccess: () => {
+      toast.success("Expense updated successfully");
+    },
+    onSettled: () => {
+      // Always refetch after error or success to make sure our local data is in sync with the server
+      queryClient.invalidateQueries({ queryKey: ["expenses"] });
+    },
+  });
 
   // Handle expense deletion
   const handleDeleteExpense = (id: string) => {
@@ -140,7 +174,7 @@ export default function ExpensesTab() {
     }
   };
 
-  // Modify the handleEditExpense function to include better logging
+  // Handle editing expense
   const handleEditExpense = (expense: Expense) => {
     console.log("Editing expense:", expense);
     setEditingExpense(expense);
@@ -165,16 +199,41 @@ export default function ExpensesTab() {
   return (
     <div className="space-y-6">
       {/* Top controls: Add button, view toggle, search, and filter */}
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-        <Button
-          onClick={() => setIsModalOpen(true)}
-          className="w-full md:w-auto"
-        >
-          <Plus className="mr-2 h-4 w-4" /> Add Expense
-        </Button>
+      <div className="space-y-4">
+        {/* Add button */}
+        <div className="flex justify-between items-center">
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            className="w-full sm:w-auto"
+          >
+            <Plus className="mr-2 h-4 w-4" /> Add Expense
+          </Button>
 
-        <div className="flex items-center gap-2 w-full md:w-auto">
-          <div className="bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 p-1 flex">
+          {/* View toggle */}
+          <div className="hidden sm:flex bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 p-1">
+            <Button
+              variant={viewType === "list" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewType("list")}
+              className="rounded-r-none"
+            >
+              <List className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewType === "card" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewType("card")}
+              className="rounded-l-none"
+            >
+              <Grid className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Search and filter */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          {/* View toggle for mobile */}
+          <div className="flex sm:hidden bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 p-1 self-start">
             <Button
               variant={viewType === "list" ? "default" : "ghost"}
               size="sm"
@@ -193,21 +252,23 @@ export default function ExpensesTab() {
             </Button>
           </div>
 
-          <div className="relative flex-1 min-w-[200px]">
+          {/* Search input */}
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               placeholder="Search expenses..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9"
+              className="pl-9 w-full"
             />
           </div>
 
+          {/* Category filter */}
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-[180px] ">
+            <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
-            <SelectContent className="z-100 bg-white dark:bg-gray-900">
+            <SelectContent className="z-100 bg-white dark:bg-gray-800">
               <SelectItem value="all">All Categories</SelectItem>
               {categories.map((category) => (
                 <SelectItem key={category} value={category || ""}>
@@ -256,35 +317,40 @@ export default function ExpensesTab() {
       )}
 
       {/* Expense list/card view */}
-      {!isLoading && !isError && expensesData?.data && expensesData.data.length > 0 && (
-        <>
-          {viewType === "list" ? (
-            <ExpenseListView
-              expenses={expensesData.data}
-              onEdit={handleEditExpense}
-              onDelete={handleDeleteExpense}
-            />
-          ) : (
-            <ExpenseCardView
-              expenses={expensesData.data}
-              onEdit={handleEditExpense}
-              onDelete={handleDeleteExpense}
-            />
-          )}
+      {!isLoading &&
+        !isError &&
+        expensesData?.data &&
+        expensesData.data.length > 0 && (
+          <>
+            {viewType === "list" ? (
+              <div className="overflow-x-auto">
+                <ExpenseListView
+                  expenses={expensesData.data}
+                  onEdit={handleEditExpense}
+                  onDelete={handleDeleteExpense}
+                />
+              </div>
+            ) : (
+              <ExpenseCardView
+                expenses={expensesData.data}
+                onEdit={handleEditExpense}
+                onDelete={handleDeleteExpense}
+              />
+            )}
 
-          {/* Pagination */}
-          {expensesData.meta.totalPages > 1 && (
-            <Pagination
-              currentPage={currentPage}
-              totalPages={expensesData.meta.totalPages}
-              onPageChange={setCurrentPage}
-            />
-          )}
-        </>
-      )}
+            {/* Pagination */}
+            {expensesData.meta.totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={expensesData.meta.totalPages}
+                onPageChange={setCurrentPage}
+              />
+            )}
+          </>
+        )}
 
       {/* Add/Edit Expense Modal */}
-    <ExpenseFormModal
+      <ExpenseFormModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         expense={editingExpense}
