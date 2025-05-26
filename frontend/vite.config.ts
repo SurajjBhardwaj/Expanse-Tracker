@@ -6,7 +6,26 @@ import tailwindcss from "@tailwindcss/vite";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [tailwindcss(), react(), tsconfigPaths()],
+  plugins: [
+    tailwindcss(),
+    react(),
+    tsconfigPaths(),
+    {
+      name: "custom-middleware",
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          if (
+            req.method === "GET" &&
+            !req.url?.startsWith("/api") &&
+            !req.url?.includes(".")
+          ) {
+            req.url = "/index.html";
+          }
+          next();
+        });
+      },
+    },
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -23,5 +42,8 @@ export default defineConfig({
       },
     },
     chunkSizeWarningLimit: 1000, // Adjust the warning limit if needed
+  },
+  server: {
+    middlewareMode: true, // Enable middleware mode for custom SPA fallback
   },
 });
