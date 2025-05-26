@@ -11,4 +11,16 @@ export default defineConfig({
             "@": path.resolve(__dirname, "./src"),
         },
     },
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    react: ["react", "react-dom"],
+                    "react-router": ["react-router-dom"],
+                    "react-query": ["@tanstack/react-query"],
+                },
+            },
+        },
+        chunkSizeWarningLimit: 1000, // Adjust the warning limit if needed
+    },
 });
