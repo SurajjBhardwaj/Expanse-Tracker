@@ -7,15 +7,24 @@ import ExpensesTab from "@/components/dashboard/ExpensesTab";
 import AnalyticsTab from "@/components/dashboard/AnalyticsTab";
 import TrashTab from "@/components/dashboard/TrashTab";
 import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState("expenses");
 
   useEffect(() => {
     // Set the initial active tab based on the URL or default to "expenses"
     console.log("DashboardPage mounted", activeTab);
   }, [activeTab]);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen min-w-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-screen bg-gray-50 dark:bg-gray-900 flex flex-col">

@@ -123,7 +123,10 @@ export default function ExpensesTab() {
 
   // Handle expense deletion
   const handleDeleteExpense = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this expense?")) {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this expense? This action cannot be undone."
+    );
+    if (confirmDelete) {
       deleteMutation.mutate(id);
     }
   };

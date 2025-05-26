@@ -9,6 +9,7 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { authApi } from "@/lib/api/auth";
+import { Loader2 } from "lucide-react";
 
 interface User {
   id: string;
@@ -38,6 +39,14 @@ export const useAuth = () => {
   }
   return context;
 };
+
+function LoadingSpinner() {
+  return (
+    <div className="flex h-screen min-w-screen items-center justify-center">
+      <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
+    </div>
+  );
+}
 
 // Create the auth provider
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -71,6 +80,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     checkAuth();
   }, []);
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   // Login function
   const login = async (email: string, password: string) => {

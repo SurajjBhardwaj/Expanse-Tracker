@@ -97,24 +97,26 @@ export default function ExpenseFormModal({
 
   // Create mutation
   const createMutation = useMutation({
-    mutationFn: expenseApi.createExpense,
-    onMutate: async (newExpense) => {
+    mutationFn: (data: ExpenseCreateUpdateData) =>
+      expenseApi.createExpense(data),
+    onMutate: async (newExpense: ExpenseCreateUpdateData) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: ["expenses"] });
 
       // Snapshot the previous value
-      const previousExpenses = queryClient.getQueryData(["expenses"]);
+      const previousExpenses = queryClient.getQueryData<{
+        data: Expense[];
+      }>(["expenses"]);
 
       // Optimistically update to the new value
       queryClient.setQueryData(["expenses"], (old: any) => {
-        // Create a temporary ID for the new expense
         const tempId = `temp-${Date.now()}`;
-        const optimisticExpense = {
+        const optimisticExpense: Expense = {
           id: tempId,
           ...newExpense,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          userId: "current-user", // This will be replaced by the actual ID from the server
+          userId: "current-user",
         };
 
         return {
@@ -123,11 +125,9 @@ export default function ExpenseFormModal({
         };
       });
 
-      // Return a context object with the snapshot
       return { previousExpenses };
     },
     onError: (_, __, context) => {
-      // If the mutation fails, use the context returned from onMutate to roll back
       queryClient.setQueryData(["expenses"], context?.previousExpenses);
       toast.error("Failed to create expense");
     },
@@ -136,35 +136,25 @@ export default function ExpenseFormModal({
       onClose();
     },
     onSettled: () => {
-      // Always refetch after error or success to make sure our local data is in sync with the server
       queryClient.invalidateQueries({ queryKey: ["expenses"] });
     },
   });
 
   // Update mutation
   const updateMutation = useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: string;
-      data: ExpenseCreateUpdateData;
-    }) => {
-      console.log("Updating expense:", id, data);
-      return expenseApi.updateExpense(id, data);
-    },
+    mutationFn: ({ id, data }: { id: string; data: ExpenseCreateUpdateData }) =>
+      expenseApi.updateExpense(id, data),
     onMutate: async ({ id, data }) => {
-      // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: ["expenses"] });
 
-      // Snapshot the previous value
-      const previousExpenses = queryClient.getQueryData(["expenses"]);
+      const previousExpenses = queryClient.getQueryData<{
+        data: Expense[];
+      }>(["expenses"]);
 
-      // Optimistically update to the new value
       queryClient.setQueryData(["expenses"], (old: any) => {
         return {
           ...old,
-          data: old.data.map((expense: Expense) =>
+          data: old?.data?.map((expense: Expense) =>
             expense.id === id
               ? { ...expense, ...data, updatedAt: new Date().toISOString() }
               : expense
@@ -172,11 +162,9 @@ export default function ExpenseFormModal({
         };
       });
 
-      // Return a context object with the snapshot
       return { previousExpenses };
     },
     onError: (_, __, context) => {
-      // If the mutation fails, use the context returned from onMutate to roll back
       queryClient.setQueryData(["expenses"], context?.previousExpenses);
       toast.error("Failed to update expense");
     },
@@ -185,7 +173,6 @@ export default function ExpenseFormModal({
       onClose();
     },
     onSettled: () => {
-      // Always refetch after error or success to make sure our local data is in sync with the server
       queryClient.invalidateQueries({ queryKey: ["expenses"] });
     },
   });
@@ -218,9 +205,6 @@ export default function ExpenseFormModal({
       return;
     }
 
-    console.log("Form submitted with data:", formData);
-    console.log("Editing expense:", expense);
-
     // Convert date string to ISO string for API
     const formDataWithFullDate = {
       ...formData,
@@ -230,25 +214,19 @@ export default function ExpenseFormModal({
     };
 
     if (expense) {
-      try {
-        console.log(
-          `Updating expense ${expense.id} with:`,
-          formDataWithFullDate
-        );
-        updateMutation.mutate({
-          id: expense.id,
-          data: {
-            name: formDataWithFullDate.name,
-            amount: Number(formDataWithFullDate.amount),
-            description: formDataWithFullDate.description,
-            category: formDataWithFullDate.category,
-            date: formDataWithFullDate.date,
-          },
-        });
-      } catch (error) {
-        console.error("Error in update mutation:", error);
-      }
+      // Update existing expense
+      updateMutation.mutate({
+        id: expense.id,
+        data: {
+          name: formDataWithFullDate.name,
+          amount: Number(formDataWithFullDate.amount),
+          description: formDataWithFullDate.description,
+          category: formDataWithFullDate.category,
+          date: formDataWithFullDate.date,
+        },
+      });
     } else {
+      // Create new expense
       createMutation.mutate(formDataWithFullDate);
     }
   };

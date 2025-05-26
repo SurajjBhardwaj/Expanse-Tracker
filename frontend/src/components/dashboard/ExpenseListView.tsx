@@ -79,23 +79,26 @@ export default function ExpenseListView({
                 {formatCurrency(expense.amount)}
               </TableCell>
               <TableCell className="text-right">
-                <div className="flex justify-end gap-2">
+                <div className="flex justify-end gap-4">
                   <Button
-                    variant="ghost"
-                    size="icon"
+                    variant="outline"
+                    size="sm"
                     onClick={() => onEdit(expense)}
                     aria-label={`Edit ${expense.name}`}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium"
                   >
-                    <Edit className="h-4 w-4" />
+                    <Edit className="h-5 w-5" />
+                    Edit
                   </Button>
                   <Button
-                    variant="ghost"
-                    size="icon"
+                    variant="destructive"
+                    size="sm"
                     onClick={() => onDelete(expense.id)}
                     aria-label={`Delete ${expense.name}`}
-                    className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-5 w-5" />
+                    Move to Trash
                   </Button>
                 </div>
               </TableCell>

@@ -84,7 +84,7 @@ export default function ExpenseCardView({
                 className="flex-1 rounded-none py-4 h-auto text-sm text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
                 onClick={() => onDelete(expense.id)}
               >
-                <Trash2 className="h-4 w-4 mr-2" /> Delete
+                <Trash2 className="h-4 w-4 mr-2" /> Move to Trash
               </Button>
             </div>
           </CardContent>
