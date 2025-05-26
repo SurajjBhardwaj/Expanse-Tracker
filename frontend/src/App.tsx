@@ -15,6 +15,8 @@ import { Suspense, lazy } from "react";
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const SignupPage = lazy(() => import("./pages/SignupPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
+const PasswordResetPage = lazy(() => import("./pages/PasswordResetPage"));
 
 // Create a client
 const queryClient = new QueryClient({
@@ -32,7 +34,7 @@ function App() {
       <Router>
         <Suspense
           fallback={
-            <div className="flex h-screen items-center justify-center">
+            <div className="flex h-screen  min-w-screen  items-center justify-center">
               Loading...
             </div>
           }
@@ -55,6 +57,11 @@ function App() {
                     <SignupPage />
                   </PublicRoute>
                 }
+              />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route
+                path="/password-reset/:token"
+                element={<PasswordResetPage />}
               />
               <Route path="/" element={<Navigate to="/login" replace />} />
 
