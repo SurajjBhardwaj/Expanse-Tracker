@@ -130,7 +130,15 @@ exports.Prisma.ExpanseScalarFieldEnum = {
   date: 'date',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  userId: 'userId'
+  userId: 'userId',
+  isDeleted: 'isDeleted'
+};
+
+exports.Prisma.PasswordResetTokenScalarFieldEnum = {
+  id: 'id',
+  token: 'token',
+  userId: 'userId',
+  expiresAt: 'expiresAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -146,7 +154,8 @@ exports.Prisma.QueryMode = {
 
 exports.Prisma.ModelName = {
   User: 'User',
-  Expanse: 'Expanse'
+  Expanse: 'Expanse',
+  PasswordResetToken: 'PasswordResetToken'
 };
 
 /**

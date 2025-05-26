@@ -109,6 +109,8 @@ export const getExpanses: RequestHandler = async (req: any, res) => {
       ];
     }
 
+    filters.isDeleted = false; // Exclude deleted expanses
+
     console.log("Filters:", filters);
 
     // Fetch expanses with pagination, sorting, and filtering
@@ -211,13 +213,94 @@ export const deleteExpanse: RequestHandler = async (req: any, res) => {
       res.status(400).json({ error: "Expanse ID is required" });
     }
 
+    const expanse = await prisma.expanse.update({
+      where: { id: expanseId },
+      data: { isDeleted: true },
+    });
+
+    res.status(200).json({ message: "Expanse moved to trash", expanse });
+  } catch (error) {
+    console.error("Error deleting expanse:", error);
+    res.status(500).json({ error: "Failed to delete expanse" });
+  }
+};
+
+export const getTrash: RequestHandler = async (req: any, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const trashedExpenses = await prisma.expanse.findMany({
+      where: { userId, isDeleted: true },
+      orderBy: { updatedAt: "desc" },
+    });
+
+    res.status(200).json(trashedExpenses);
+  } catch (error) {
+    console.error("Error fetching trashed expenses:", error);
+    res.status(500).json({ error: "Failed to fetch trashed expenses" });
+  }
+};
+
+export const restoreExpanse: RequestHandler = async (req: any, res) => {
+  try {
+    const expanseId = req.params.id;
+
+    if (!expanseId) {
+      res.status(400).json({ error: "Expanse ID is required" });
+      return;
+    }
+
+    const expanse = await prisma.expanse.findUnique({
+      where: { id: expanseId, userId: req.user.userId },
+    });
+
+    if (!expanse || !expanse.isDeleted) {
+      res.status(404).json({ error: "Expanse not found or not in trash" });
+      return;
+    }
+
+    const restoredExpanse = await prisma.expanse.update({
+      where: { id: expanseId },
+      data: { isDeleted: false },
+    });
+
+    res
+      .status(200)
+      .json({ message: "Expanse restored successfully", restoredExpanse });
+  } catch (error) {
+    console.error("Error restoring expanse:", error);
+    res.status(500).json({ error: "Failed to restore expanse" });
+  }
+};
+
+export const deleteExpansePermanently: RequestHandler = async (
+  req: any,
+  res
+) => {
+  try {
+    const expanseId = req.params.id;
+
+    if (!expanseId) {
+      res.status(400).json({ error: "Expanse ID is required" });
+      return;
+    }
+
+    const expanse = await prisma.expanse.findUnique({
+      where: { id: expanseId, userId: req.user.userId },
+    });
+
+    if (!expanse || !expanse.isDeleted) {
+      res.status(404).json({ error: "Expanse not found or not in trash" });
+      return;
+    }
+
     await prisma.expanse.delete({
       where: { id: expanseId },
     });
 
-    res.status(204).send({ message: " Expanse deleted successfully" });
+    res.status(200).json({ message: "Expanse permanently deleted" });
   } catch (error) {
-    console.error("Error deleting expanse:", error);
-    res.status(500).json({ error: "Failed to delete expanse" });
+    console.error("Error permanently deleting expanse:", error);
+    res.status(500).json({ error: "Failed to permanently delete expanse" });
   }
 };
