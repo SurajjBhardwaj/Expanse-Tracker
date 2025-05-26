@@ -17,14 +17,6 @@ const SignupPage = lazy(() => import("./pages/SignupPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
 const PasswordResetPage = lazy(() => import("./pages/PasswordResetPage"));
-const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
-
-// Page loader component
-const PageLoader = () => (
-  <div className="flex h-screen min-w-screen items-center justify-center">
-    <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500"></div>
-  </div>
-);
 
 // Create a client
 const queryClient = new QueryClient({
@@ -40,7 +32,13 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
-        <Suspense fallback={<PageLoader />}>
+        <Suspense
+          fallback={
+            <div className="flex h-screen  min-w-screen  items-center justify-center">
+              Loading...
+            </div>
+          }
+        >
           <AuthProvider>
             <Routes>
               {/* Public routes - redirect to dashboard if already logged in */}
@@ -78,7 +76,7 @@ function App() {
               />
 
               {/* Redirect to login if no route matches */}
-              <Route path="*" element={<NotFoundPage />} />
+              <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
           </AuthProvider>
         </Suspense>
